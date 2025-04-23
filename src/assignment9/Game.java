@@ -1,23 +1,41 @@
 package assignment9;
 
+import java.awt.Color;
 import java.awt.event.KeyEvent;
 
 import edu.princeton.cs.introcs.StdDraw;
 
 public class Game {
+	private Snake snake;
+	private Food food;
+	private int score = 0;
 	
 	public Game() {
 		StdDraw.enableDoubleBuffering();
-		
-		//FIXME - construct new Snake and Food objects
+	    snake = new Snake();
+	    food = new Food();
 	}
 	
 	public void play() {
-		while (true) { //TODO: Update this condition to check if snake is in bounds
-			int dir = getKeypress();
-			//Testing only: you will eventually need to do more work here
-			System.out.println("Keypress: " + dir);
-			
+	    while (snake.isInbounds()) { //in snake.java
+	        int dir = getKeypress();
+	        
+	        //Only change direction if a key is pressed
+	        if (dir != -1) {
+	            snake.changeDirection(dir);
+	        }
+	        
+	        snake.move();
+
+	        if (snake.eatFood(food)) {
+	            food = new Food();  // replace eaten food
+	            score++; //increase score
+	        }
+
+	        updateDrawing();
+	    }
+
+	    System.out.println("Game Over!");
 			/*
 			 * 1. Pass direction to your snake
 			 * 2. Tell the snake to move
@@ -25,6 +43,24 @@ public class Game {
 			 * 4. Update the drawing
 			 */
 		}
+	
+	private void showIntroScreen() {
+	    StdDraw.clear();
+	    StdDraw.setPenColor(Color.BLACK);
+	    StdDraw.text(0.5, 0.6, "~>°)～～～ Welcome to The Snake Game ~>°)～～～ ");
+	    StdDraw.text(0.5, 0.5, "Use WASD to move");
+	    StdDraw.text(0.5, 0.4, "Press SPACE to start");
+	    StdDraw.show();
+
+	    // Wait until space is pressed
+	    while (!StdDraw.isKeyPressed(java.awt.event.KeyEvent.VK_SPACE)) {
+	        StdDraw.pause(10);
+	    }
+
+	    // Wait for them to let go of space so game doesn't start instantly
+	    while (StdDraw.isKeyPressed(java.awt.event.KeyEvent.VK_SPACE)) {
+	        StdDraw.pause(10);
+	    }
 	}
 	
 	private int getKeypress() {
@@ -45,7 +81,15 @@ public class Game {
 	 * Clears the screen, draws the snake and food, pauses, and shows the content
 	 */
 	private void updateDrawing() {
-		//FIXME
+	    StdDraw.clear();
+	    snake.draw();
+	    food.draw();
+	    
+	    StdDraw.setPenColor(Color.BLACK);
+	    StdDraw.textLeft(0.02, 0.98, "Score: " + score);
+	    
+	    StdDraw.pause(50);
+	    StdDraw.show();
 		
 		/*
 		 * 1. Clear screen
@@ -57,6 +101,7 @@ public class Game {
 	
 	public static void main(String[] args) {
 		Game g = new Game();
+		g.showIntroScreen(); 
 		g.play();
 	}
 }
